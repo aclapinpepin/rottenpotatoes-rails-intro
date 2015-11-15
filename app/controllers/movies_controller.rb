@@ -13,8 +13,10 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = sorted? ? sort : Movie.all
+    @checked_ratings = checked_ratings
+    @movies = sorted? ? sort : Movie.where(rating: @checked_ratings.keys)
     @css = 'hilite'
+    @all_ratings = Movie.ratings
   end
 
   def new
@@ -48,10 +50,14 @@ class MoviesController < ApplicationController
   private
 
   def sort
-    Movie.order(params[:sort])
+    Movie.where(rating: @checked_ratings.keys).order(params[:sort])
   end
 
   def sorted?
     params[:sort]
+  end
+
+  def checked_ratings
+    params[:ratings] ? params[:ratings] : {"G"=>"1", "PG"=>"1", "PG-13"=>"1", "R"=>"1"}
   end
 end
