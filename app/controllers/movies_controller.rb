@@ -1,3 +1,5 @@
+require 'pry'
+
 class MoviesController < ApplicationController
 
   def movie_params
@@ -11,7 +13,8 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @movies = sorted? ? sort : Movie.all
+    @css = 'hilite'
   end
 
   def new
@@ -42,4 +45,13 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
+  private
+
+  def sort
+    Movie.order(params[:sort])
+  end
+
+  def sorted?
+    params[:sort]
+  end
 end
