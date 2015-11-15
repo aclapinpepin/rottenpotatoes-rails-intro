@@ -1,7 +1,6 @@
 require 'pry'
 
 class MoviesController < ApplicationController
-
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -13,14 +12,15 @@ class MoviesController < ApplicationController
   end
 
   def index
+    update_session
     @checked_ratings = checked_ratings
-    @movies = sorted? ? sort : Movie.where(rating: @checked_ratings.keys)
+    @movies = Movie.where(rating: session[:ratings].keys).order(session[:sort])
     @css = 'hilite'
     @all_ratings = Movie.ratings
   end
 
   def new
-    # default: render 'new' template
+    # redirect_to movies_path
   end
 
   def create
@@ -50,7 +50,7 @@ class MoviesController < ApplicationController
   private
 
   def sort
-    Movie.where(rating: @checked_ratings.keys).order(params[:sort])
+    Movie.where(rating: session[:ratings].keys).order(params[:sort])
   end
 
   def sorted?
@@ -59,5 +59,10 @@ class MoviesController < ApplicationController
 
   def checked_ratings
     params[:ratings] ? params[:ratings] : {"G"=>"1", "PG"=>"1", "PG-13"=>"1", "R"=>"1"}
+  end
+
+  def update_session
+    session[:ratings] = checked_ratings
+    session[:sort] = params[:sort]
   end
 end
